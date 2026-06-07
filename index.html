@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Imperial RP v2 — Master Development Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --bg-panel: #10141a;
+    --bg-card: #141920;
+    --bg-card-hover: #1a2030;
+    --accent: #c8a84b;
+    --accent-dim: #8a7030;
+    --accent-glow: rgba(200,168,75,0.12);
+    --red: #c84b4b;
+    --red-dim: #7a2020;
+    --green: #4bc87a;
+    --green-dim: #1f6b3a;
+    --blue: #4b8fc8;
+    --blue-dim: #1f4a7a;
+    --border: rgba(200,168,75,0.15);
+    --border-dim: rgba(255,255,255,0.06);
+    --text: #e8e0d0;
+    --text-muted: #8a8070;
+    --text-dim: #504840;
+    --mono: 'Share Tech Mono', monospace;
+    --sans: 'Barlow', sans-serif;
+    --condensed: 'Barlow Condensed', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Subtle grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(200,168,75,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,168,75,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .header-left { flex: 1; }
+
+  .header-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  h1 {
+    font-family: var(--condensed);
+    font-size: 2.8rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    color: var(--text);
+    text-transform: uppercase;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .header-sub {
+    font-family: var(--sans);
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+    font-weight: 300;
+  }
+
+  .header-meta {
+    text-align: right;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.8;
+  }
+
+  .header-meta .status-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--green);
+    font-size: 11px;
+  }
+
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ── SECTION HEADERS ── */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── OVERVIEW STATS ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-dim);
+    border-radius: 4px;
+    padding: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent-dim);
+  }
+
+  .stat-num {
+    font-family: var(--condensed);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* ── PRIORITY BOARD ── */
+  .priority-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+
+  .priority-col {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-dim);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .col-header {
+    padding: 10px 14px;
+    font-family: var(--condensed);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-dim);
+  }
+
+  .col-header.critical { background: rgba(200,75,75,0.1); color: var(--red); border-bottom-color: rgba(200,75,75,0.2); }
+  .col-header.high { background: rgba(200,168,75,0.1); color: var(--accent); border-bottom-color: var(--border); }
+  .col-header.normal { background: rgba(75,143,200,0.08); color: var(--blue); border-bottom-color: rgba(75,143,200,0.15); }
+
+  .col-count {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: rgba(255,255,255,0.06);
+    padding: 2px 7px;
+    border-radius: 2px;
+    font-weight: 400;
+  }
+
+  .task-list { padding: 8px; }
+
+  .task-item {
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-dim);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .task-item:hover { background: var(--bg-card-hover); border-color: var(--border); }
+
+  .task-item.done { opacity: 0.4; }
+
+  .task-item.done .task-text { text-decoration: line-through; }
+
+  .task-check {
+    width: 14px; height: 14px;
+    min-width: 14px;
+    border: 1px solid var(--text-dim);
+    border-radius: 2px;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    background: transparent;
+    color: var(--green);
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .task-item.done .task-check {
+    background: var(--green-dim);
+    border-color: var(--green);
+  }
+
+  .task-text {
+    font-size: 13px;
+    color: var(--text);
+    flex: 1;
+    line-height: 1.4;
+  }
+
+  .task-tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    padding: 2px 5px;
+    border-radius: 2px;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    margin-top: 2px;
+  }
+
+  .tag-dev { background: rgba(75,143,200,0.15); color: var(--blue); }
+  .tag-design { background: rgba(200,75,200,0.15); color: #c84bc8; }
+  .tag-lore { background: rgba(75,200,122,0.12); color: var(--green); }
+  .tag-admin { background: rgba(200,168,75,0.15); color: var(--accent); }
+  .tag-faction { background: rgba(200,100,75,0.15); color: #c87a4b; }
+  .tag-infra { background: rgba(150,150,200,0.15); color: #9090c8; }
+
+  /* ── PHASES TIMELINE ── */
+  .phases { margin-bottom: 2rem; }
+
+  .phase-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 0;
+    margin-bottom: 0;
+  }
+
+  .phase-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 16px;
+  }
+
+  .phase-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--text-dim);
+    background: var(--bg);
+    position: relative;
+    z-index: 1;
+  }
+
+  .phase-dot.active { border-color: var(--accent); background: var(--accent); }
+  .phase-dot.complete { border-color: var(--green); background: var(--green); }
+
+  .phase-line {
+    width: 1px;
+    flex: 1;
+    background: var(--border-dim);
+    margin-top: 4px;
+  }
+
+  .phase-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding-top: 14px;
+    padding-right: 12px;
+    text-align: right;
+  }
+
+  .phase-content {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-dim);
+    border-radius: 4px;
+    padding: 12px 14px;
+    margin: 8px 0 8px;
+    position: relative;
+  }
+
+  .phase-content.active { border-color: var(--border); }
+
+  .phase-title {
+    font-family: var(--condensed);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .phase-content.active .phase-title { color: var(--accent); }
+
+  .phase-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .phase-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 8px;
+  }
+
+  .phase-pill {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-dim);
+    color: var(--text-muted);
+  }
+
+  /* ── FACTIONS TABLE ── */
+  .faction-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin-bottom: 2rem;
+  }
+
+  .faction-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-dim);
+    border-radius: 4px;
+    padding: 12px 14px;
+    position: relative;
+  }
+
+  .faction-name {
+    font-family: var(--condensed);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .faction-status {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 6px;
+  }
+
+  .st-dot { width: 5px; height: 5px; border-radius: 50%; }
+  .st-planned .st-dot { background: var(--text-dim); }
+  .st-inprogress .st-dot { background: var(--accent); }
+  .st-ready .st-dot { background: var(--green); }
+  .st-blocked .st-dot { background: var(--red); }
+  .st-planned { color: var(--text-dim); }
+  .st-inprogress { color: var(--accent); }
+  .st-ready { color: var(--green); }
+  .st-blocked { color: var(--red); }
+
+  .faction-note {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  /* ── NOTES & DECISIONS ── */
+  .notes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+
+  .note-block {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-dim);
+    border-radius: 4px;
+    padding: 14px;
+  }
+
+  .note-block-title {
+    font-family: var(--condensed);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .note-block-title svg { opacity: 0.5; }
+
+  .note-entry {
+    display: flex;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border-dim);
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.45;
+  }
+
+  .note-entry:last-child { border-bottom: none; }
+
+  .note-entry-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    min-width: 48px;
+    padding-top: 2px;
+  }
+
+  /* ── ADD TASK FORM ── */
+  .add-section {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-dim);
+    border-radius: 4px;
+    padding: 14px;
+    margin-bottom: 2rem;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .form-row input, .form-row select {
+    background: var(--bg-card);
+    border: 1px solid var(--border-dim);
+    border-radius: 3px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    padding: 7px 10px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .form-row input:focus, .form-row select:focus {
+    border-color: var(--accent);
+  }
+
+  .form-row input { flex: 1; min-width: 200px; }
+
+  .form-row select option { background: var(--bg-panel); }
+
+  .add-btn {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    font-family: var(--condensed);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 7px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+
+  .add-btn:hover { background: rgba(200,168,75,0.25); }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border-dim);
+    padding-top: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .footer-left {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  .footer-right {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 720px) {
+    .priority-board { grid-template-columns: 1fr; }
+    .notes-grid { grid-template-columns: 1fr; }
+    h1 { font-size: 2rem; }
+    header { flex-direction: column; align-items: flex-start; }
+    .header-meta { text-align: left; }
+    .phase-row { grid-template-columns: 80px 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-left">
+      <div class="header-eyebrow">CELESTIAL NETWORKS // IMPERIAL RP</div>
+      <h1>Imperial <span>v2</span></h1>
+      <div class="header-sub">Master Development Sheet — Plans, Tasks & Priorities</div>
+    </div>
+    <div class="header-meta">
+      <div class="status-live"><span class="dot"></span> ACTIVE DEVELOPMENT</div>
+      <div>Last edited: <span id="last-edited">—</span></div>
+      <div>Version: v2.0.0-alpha</div>
+    </div>
+  </header>
+
+  <!-- STATS -->
+  <div class="section-label">Overview</div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-num" id="stat-total">0</div>
+      <div class="stat-label">Total Tasks</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-done" style="color: var(--green)">0</div>
+      <div class="stat-label">Complete</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-crit" style="color: var(--red)">0</div>
+      <div class="stat-label">Critical</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-pct">0%</div>
+      <div class="stat-label">Progress</div>
+    </div>
+  </div>
+
+  <!-- ADD TASK -->
+  <div class="section-label">Add Task</div>
+  <div class="add-section">
+    <div class="form-row">
+      <input type="text" id="new-task-text" placeholder="Describe the task...">
+      <select id="new-task-priority">
+        <option value="critical">Critical</option>
+        <option value="high" selected>High</option>
+        <option value="normal">Normal</option>
+      </select>
+      <select id="new-task-tag">
+        <option value="dev">Dev</option>
+        <option value="design">Design</option>
+        <option value="lore">Lore</option>
+        <option value="admin">Admin</option>
+        <option value="faction">Faction</option>
+        <option value="infra">Infra</option>
+      </select>
+      <button class="add-btn" onclick="addTask()">+ Add Task</button>
+    </div>
+  </div>
+
+  <!-- PRIORITY BOARD -->
+  <div class="section-label">Task Board</div>
+  <div class="priority-board">
+    <div class="priority-col">
+      <div class="col-header critical">
+        Critical <span class="col-count" id="cnt-critical">0</span>
+      </div>
+      <div class="task-list" id="col-critical"></div>
+    </div>
+    <div class="priority-col">
+      <div class="col-header high">
+        High Priority <span class="col-count" id="cnt-high">0</span>
+      </div>
+      <div class="task-list" id="col-high"></div>
+    </div>
+    <div class="priority-col">
+      <div class="col-header normal">
+        Normal <span class="col-count" id="cnt-normal">0</span>
+      </div>
+      <div class="task-list" id="col-normal"></div>
+    </div>
+  </div>
+
+  <!-- PHASES -->
+  <div class="section-label">Development Phases</div>
+  <div class="phases">
+    <div class="phase-row">
+      <div style="display:flex; flex-direction:column; align-items:flex-end; padding-right:12px; padding-top:18px;">
+        <div class="phase-dot complete" style="margin-bottom:4px;"></div>
+        <div style="width:1px; height:100%; background:var(--border-dim); margin-right:0;"></div>
+      </div>
+      <div class="phase-content" style="border-color: var(--green-dim);">
+        <div class="phase-title" style="color: var(--green)">Phase 0 — Pre-Production</div>
+        <div class="phase-desc">Server concept locked, infrastructure scoped, initial leadership structure defined. Work begins from Imperial v1 lessons learned.</div>
+        <div class="phase-pills">
+          <span class="phase-pill">Concept doc</span>
+          <span class="phase-pill">Leadership roster</span>
+          <span class="phase-pill">v1 post-mortem</span>
+        </div>
+      </div>
+    </div>
+    <div class="phase-row">
+      <div style="display:flex; flex-direction:column; align-items:flex-end; padding-right:12px; padding-top:18px;">
+        <div class="phase-dot active" style="margin-bottom:4px;"></div>
+        <div style="width:1px; height:100%; background:var(--border-dim);"></div>
+      </div>
+      <div class="phase-content active">
+        <div class="phase-title">Phase 1 — Foundation Build</div>
+        <div class="phase-desc">Core server infrastructure, essential faction frameworks (ISB, Stormtroopers, Navy), map selection, and base addon stack. No player-facing work until this phase clears.</div>
+        <div class="phase-pills">
+          <span class="phase-pill">Addons & content</span>
+          <span class="phase-pill">Map choice</span>
+          <span class="phase-pill">ISB structure</span>
+          <span class="phase-pill">ST regiment design</span>
+          <span class="phase-pill">Rank framework</span>
+        </div>
+      </div>
+    </div>
+    <div class="phase-row">
+      <div style="display:flex; flex-direction:column; align-items:flex-end; padding-right:12px; padding-top:18px;">
+        <div class="phase-dot" style="margin-bottom:4px;"></div>
+        <div style="width:1px; height:100%; background:var(--border-dim);"></div>
+      </div>
+      <div class="phase-content">
+        <div class="phase-title">Phase 2 — Content & Lore Integration</div>
+        <div class="phase-desc">Faction lore documents, SOP writing, character frameworks, and custom content finalization. ISB cooldown/supervisor systems locked. Staff handbook drafted.</div>
+        <div class="phase-pills">
+          <span class="phase-pill">Faction SOPs</span>
+          <span class="phase-pill">Lore docs</span>
+          <span class="phase-pill">Custom PAC3/models</span>
+          <span class="phase-pill">Staff handbook</span>
+        </div>
+      </div>
+    </div>
+    <div class="phase-row">
+      <div style="display:flex; flex-direction:column; align-items:flex-end; padding-right:12px; padding-top:18px;">
+        <div class="phase-dot" style="margin-bottom:4px;"></div>
+        <div style="width:1px; height:100%; background:var(--border-dim);"></div>
+      </div>
+      <div class="phase-content">
+        <div class="phase-title">Phase 3 — Internal Testing</div>
+        <div class="phase-desc">Closed-access testing with staff and trusted members. Bug reports, balance review, faction inter-play testing. No public announcement yet.</div>
+        <div class="phase-pills">
+          <span class="phase-pill">Closed beta</span>
+          <span class="phase-pill">Bug tracking</span>
+          <span class="phase-pill">Balance review</span>
+        </div>
+      </div>
+    </div>
+    <div class="phase-row">
+      <div style="display:flex; flex-direction:column; align-items:flex-end; padding-right:12px; padding-top:18px;">
+        <div class="phase-dot" style="margin-bottom:4px;"></div>
+      </div>
+      <div class="phase-content">
+        <div class="phase-title">Phase 4 — Soft Launch</div>
+        <div class="phase-desc">Community announcement, applications open for leadership positions, final infrastructure checks, launch date locked and communicated to CN community.</div>
+        <div class="phase-pills">
+          <span class="phase-pill">Public comms</span>
+          <span class="phase-pill">Applications open</span>
+          <span class="phase-pill">Launch date</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FACTIONS -->
+  <div class="section-label">Faction Status</div>
+  <div class="faction-grid" id="faction-grid">
+    <!-- populated by JS -->
+  </div>
+
+  <!-- NOTES & DECISIONS -->
+  <div class="section-label">Design Decisions & Notes</div>
+  <div class="notes-grid">
+    <div class="note-block">
+      <div class="note-block-title">Key Decisions</div>
+      <div id="decisions-list">
+        <div class="note-entry"><div class="note-entry-label">Locked</div><div>ISB ranks to align with branch hierarchy — no separate rank scale</div></div>
+        <div class="note-entry"><div class="note-entry-label">Locked</div><div>Cooldown system required for ISB attendant/supervisor interactions</div></div>
+        <div class="note-entry"><div class="note-entry-label">Pending</div><div>Map selection — shortlist to three candidates before vote</div></div>
+        <div class="note-entry"><div class="note-entry-label">Pending</div><div>Tryout vs whitelist system for restricted factions (ISB, Navy)</div></div>
+        <div class="note-entry"><div class="note-entry-label">TBD</div><div>Imperial Guard — playable sub-faction or NPC/event-only</div></div>
+      </div>
+    </div>
+    <div class="note-block">
+      <div class="note-block-title">Notes & Context</div>
+      <div id="notes-list">
+        <div class="note-entry"><div class="note-entry-label">Ref</div><div>Andor + Dawn of Rebellion canon used as primary ISB reference</div></div>
+        <div class="note-entry"><div class="note-entry-label">Ref</div><div>v1 post-mortem: launch before leadership depth = critical failure mode</div></div>
+        <div class="note-entry"><div class="note-entry-label">Note</div><div>Stormtrooper corps needs 2–3 distinct regiment identities at launch minimum</div></div>
+        <div class="note-entry"><div class="note-entry-label">Note</div><div>All faction leads must be filled before Phase 3 — no exceptions</div></div>
+        <div class="note-entry"><div class="note-entry-label">Note</div><div>Store/donor perks for ImperialRP must be defined before soft launch</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-left">CELESTIAL NETWORKS — INTERNAL USE — IMPERIAL RP V2</div>
+    <div class="footer-right" id="footer-url">celestialnetworks.au</div>
+  </footer>
+
+</div>
+
+<script>
+const STORAGE_KEY = 'cn_imperial_v2_tasks';
+
+const DEFAULT_TASKS = [
+  { id: 1, text: 'Define final faction list and player cap per faction', priority: 'critical', tag: 'admin', done: false },
+  { id: 2, text: 'Select and test map — lock candidate shortlist', priority: 'critical', tag: 'dev', done: false },
+  { id: 3, text: 'Appoint Imperial Server Manager and faction leads before Phase 3', priority: 'critical', tag: 'admin', done: false },
+  { id: 4, text: 'Design ISB rank structure and cooldown framework', priority: 'high', tag: 'lore', done: false },
+  { id: 5, text: 'Draft Stormtrooper regiment identities (min 2 at launch)', priority: 'high', tag: 'faction', done: false },
+  { id: 6, text: 'Compile addon/content stack — avoid v1 bloat', priority: 'high', tag: 'dev', done: false },
+  { id: 7, text: 'Write staff handbook for Imperial division', priority: 'high', tag: 'admin', done: false },
+  { id: 8, text: 'ISB SOP document — attendant/supervisor role frameworks', priority: 'high', tag: 'lore', done: false },
+  { id: 9, text: 'Configure server infrastructure and base GMod settings', priority: 'high', tag: 'infra', done: false },
+  { id: 10, text: 'Design donor/store perks for ImperialRP v2', priority: 'normal', tag: 'admin', done: false },
+  { id: 11, text: 'Write Imperial RP rules document (branch from CN rules)', priority: 'normal', tag: 'admin', done: false },
+  { id: 12, text: 'Decide tryout vs whitelist system for restricted factions', priority: 'normal', tag: 'faction', done: false },
+  { id: 13, text: 'Determine Imperial Guard faction scope (playable vs event)', priority: 'normal', tag: 'faction', done: false },
+  { id: 14, text: 'Design Imperial Hub / community page on CN site', priority: 'normal', tag: 'design', done: false },
+  { id: 15, text: 'Plan launch announcement comms and timing', priority: 'normal', tag: 'admin', done: false },
+];
+
+const FACTIONS = [
+  { name: 'Stormtrooper Corps', status: 'inprogress', note: 'Regiment design in progress — 2 planned for launch' },
+  { name: 'Imperial Security Bureau', status: 'inprogress', note: 'Rank structure & cooldowns being designed' },
+  { name: 'Imperial Navy', status: 'planned', note: 'Scoped — leadership not yet appointed' },
+  { name: 'Imperial Army', status: 'planned', note: 'Lower priority — confirm before Phase 2' },
+  { name: 'Imperial Guard', status: 'planned', note: 'Scope TBD — event-only or playable faction' },
+  { name: 'Inquisitorius', status: 'planned', note: 'High prestige — whitelist/application only' },
+  { name: 'Medical Corps', status: 'planned', note: 'Support faction — optional at launch' },
+  { name: 'Imperial Engineers', status: 'planned', note: 'Utility faction — confirm demand before committing' },
+];
+
+let tasks = [];
+let nextId = 100;
+
+function loadTasks() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      tasks = parsed.tasks || DEFAULT_TASKS;
+      nextId = parsed.nextId || 100;
+    } else {
+      tasks = [...DEFAULT_TASKS];
+    }
+  } catch(e) {
+    tasks = [...DEFAULT_TASKS];
+  }
+}
+
+function saveTasks() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ tasks, nextId }));
+    document.getElementById('last-edited').textContent = new Date().toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
+  } catch(e) {}
+}
+
+function tagClass(tag) {
+  return 'tag-' + tag;
+}
+
+function renderTask(task) {
+  const el = document.createElement('div');
+  el.className = 'task-item' + (task.done ? ' done' : '');
+  el.dataset.id = task.id;
+  el.innerHTML = `
+    <div class="task-check">${task.done ? '✓' : ''}</div>
+    <div style="flex:1">
+      <div class="task-text">${escapeHtml(task.text)}</div>
+      <span class="task-tag ${tagClass(task.tag)}">${task.tag.toUpperCase()}</span>
+    </div>
+    <div onclick="deleteTask(${task.id}, event)" style="color:var(--text-dim); font-size:14px; cursor:pointer; padding:0 2px; line-height:1;" title="Delete">×</div>
+  `;
+  el.querySelector('.task-check').addEventListener('click', () => toggleTask(task.id));
+  el.querySelector('.task-text').addEventListener('click', () => toggleTask(task.id));
+  return el;
+}
+
+function renderBoard() {
+  const cols = { critical: [], high: [], normal: [] };
+  tasks.forEach(t => { if (cols[t.priority]) cols[t.priority].push(t); });
+
+  ['critical','high','normal'].forEach(p => {
+    const col = document.getElementById('col-' + p);
+    const cnt = document.getElementById('cnt-' + p);
+    col.innerHTML = '';
+    cols[p].forEach(t => col.appendChild(renderTask(t)));
+    cnt.textContent = cols[p].length;
+  });
+
+  const total = tasks.length;
+  const done = tasks.filter(t => t.done).length;
+  const crit = tasks.filter(t => t.priority === 'critical' && !t.done).length;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-done').textContent = done;
+  document.getElementById('stat-crit').textContent = crit;
+  document.getElementById('stat-pct').textContent = total ? Math.round(done/total*100) + '%' : '0%';
+}
+
+function renderFactions() {
+  const grid = document.getElementById('faction-grid');
+  grid.innerHTML = '';
+  FACTIONS.forEach(f => {
+    const labels = { planned: 'Planned', inprogress: 'In Progress', ready: 'Ready', blocked: 'Blocked' };
+    const card = document.createElement('div');
+    card.className = 'faction-card';
+    card.innerHTML = `
+      <div class="faction-name">${f.name}</div>
+      <div class="faction-status st-${f.status}"><span class="st-dot"></span>${labels[f.status]}</div>
+      <div class="faction-note">${f.note}</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function toggleTask(id) {
+  const t = tasks.find(t => t.id === id);
+  if (t) { t.done = !t.done; saveTasks(); renderBoard(); }
+}
+
+function deleteTask(id, e) {
+  e.stopPropagation();
+  tasks = tasks.filter(t => t.id !== id);
+  saveTasks();
+  renderBoard();
+}
+
+function addTask() {
+  const text = document.getElementById('new-task-text').value.trim();
+  if (!text) return;
+  const priority = document.getElementById('new-task-priority').value;
+  const tag = document.getElementById('new-task-tag').value;
+  tasks.push({ id: nextId++, text, priority, tag, done: false });
+  document.getElementById('new-task-text').value = '';
+  saveTasks();
+  renderBoard();
+}
+
+document.getElementById('new-task-text').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addTask();
+});
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.getElementById('last-edited').textContent = new Date().toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
+
+loadTasks();
+renderBoard();
+renderFactions();
+</script>
+</body>
+</html>
